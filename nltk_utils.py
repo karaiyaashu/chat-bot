@@ -23,6 +23,6 @@ def bag_of_words(tokenized_sentence, all_words):
 
     for idx, w in enumerate(all_words):
         if w in tokenized_sentence:
-            idx = 1.0
+            bag[idx] = 1
 
     return bag

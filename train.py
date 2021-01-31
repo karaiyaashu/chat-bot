@@ -20,8 +20,11 @@ all_words = []
 tags = []
 xy = []
 
+
+# loop through each sentence in our intents pattern
 for intent in intents['intents']:
     tag = intent['tag']
+    # add tags to the list
     tags.append(tag)
     for pattern in intent['patterns']:
         # w is an array , all_words is an array , extend combine them
@@ -33,6 +36,7 @@ for intent in intents['intents']:
 ignore_words = ['?', '!', ',', '.']
 
 all_words = [stem(w) for w in all_words if w not in ignore_words]
+
 all_words = sorted(set(all_words))
 tags = sorted(set(tags))
 
@@ -75,7 +79,7 @@ num_epochs = 1000
 
 dataset = ChatDataset()
 train_loader = DataLoader(
-    dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
 
 # check if GPU available then use GPU otherwise CPU
@@ -92,7 +96,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learing_rate)
 for epoch in range(num_epochs):
     for(words, labels) in train_loader:
         words = words.to(device)
-        label = labels.to(device)
+        label = labels.to(dtype=torch.long).to(device)
 
         # forward path
 
@@ -109,3 +113,18 @@ for epoch in range(num_epochs):
 
 
 print(f'final loss, loss = {loss.item():.4f}')
+
+
+data = {
+    "model_state": model.state_dict(),
+    "input_size": input_size,
+    "output_size": output_size,
+    "hidden_size": hidden_size,
+    "all_words": all_words,
+    "tags": tags
+}
+
+FILE = 'data.pth'
+torch.save(data, FILE)
+
+print(f'training complete. file saved to {FILE}')
